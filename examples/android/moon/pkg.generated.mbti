@@ -1,0 +1,17 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Nanaloveyuki/runtimebinding_android_demo"
+
+// Values
+pub fn create_int_callback(UInt64) -> UInt64
+
+pub fn dispatch(Int32, Int32, Int32) -> Unit
+
+pub fn handled_observer_error() -> Int32
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

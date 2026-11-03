@@ -1,0 +1,31 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Nanaloveyuki/android_runtimebinding/log"
+
+import {
+  "Nanaloveyuki/ajni/runtime",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) enum Level {
+  Verbose
+  Debug
+  Info
+  Warn
+  Error
+}
+pub fn Level::priority(Self) -> Int32
+
+pub struct Logger {
+  println : @runtime.JavaMethod
+  tag : @runtime.JavaObject
+}
+pub fn Logger::log(Self, Level, String) -> Unit raise @runtime.RuntimeError
+pub fn Logger::new(String) -> Self raise @runtime.RuntimeError
+
+// Type aliases
+
+// Traits

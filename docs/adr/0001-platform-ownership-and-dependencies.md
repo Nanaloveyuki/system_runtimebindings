@@ -1,0 +1,5 @@
+# Platform Ownership and Dependencies
+
+Status: accepted
+
+`system_runtimebindings` owns consumer-facing runtime capability contracts and platform adapters; AJNI owns Android JNI calls and host integration primitives, while MoonOHOS owns HarmonyOS MoonBit-to-ArkTS/Node-API bridging, platform packages, and platform packaging. Runtimebinding depends on the relevant upstream package, never the reverse, and must not reproduce an upstream bridge or host layer. This keeps platform-specific maintenance with its owning project and prevents a cross-platform facade from dictating low-level JNI/NAPI design. Runtimebinding may normalize only behavior with demonstrated shared consumer semantics; platform-specific capabilities remain in their adapters. A local shim is considered only after a concrete public-API gap is established and upstream collaboration is not a viable path.

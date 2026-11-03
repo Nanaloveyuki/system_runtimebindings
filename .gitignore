@@ -1,0 +1,8 @@
+_build/
+.mooncakes/
+.moon-lock
+.gradle/
+.kotlin/
+.cxx/
+examples/android/**/build/
+local.properties

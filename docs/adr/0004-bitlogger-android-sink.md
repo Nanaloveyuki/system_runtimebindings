@@ -1,0 +1,5 @@
+# BitLogger Owns the Logging Contract
+
+Status: accepted
+
+`Nanaloveyuki/BitLogger` already provides the structured `Logger`, `Record`, levels, and extensible `Sink` contract; runtimebinding will not maintain a competing cross-platform logger API. The Android logging integration should use BitLogger's public `Sink` if its non-raising `write` contract can represent AJNI's potentially raising failures without silently swallowing them or introducing an undocumented abort. The adapter maps records to Android log priorities and preserves target, message, and fields. This places logging policy and structured-record semantics with the existing logging library while this repository owns Android-specific output integration. The currently validated direct Android `Logger` remains evidence for the JNI/logcat path only and should be removed after a viable BitLogger integration and all consumer migration are complete.

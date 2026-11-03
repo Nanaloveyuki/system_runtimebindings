@@ -1,0 +1,21 @@
+import {
+  "Nanaloveyuki/android_runtimebinding/log",
+  "Nanaloveyuki/ajni/runtime",
+  "Nanaloveyuki/ajni/android",
+}
+
+pkgtype(kind: "executable")
+
+supported_targets = "native"
+
+options(
+  link: {
+    "native": {
+      "exports": [
+        "dispatch:ajni_dispatch_event",
+        "create_int_callback:ajni_create_int_callback",
+        "handled_observer_error:ajni_handled_observer_error",
+      ],
+    },
+  },
+)
