@@ -2,29 +2,24 @@
 package "Nanaloveyuki/android_runtimebinding/log"
 
 import {
+  "Nanaloveyuki/BitLogger/src/core",
   "Nanaloveyuki/ajni/runtime",
 }
 
 // Values
 
 // Errors
+pub(all) suberror AndroidLogError {
+  Runtime(@runtime.RuntimeError)
+}
 
 // Types and methods
-pub(all) enum Level {
-  Verbose
-  Debug
-  Info
-  Warn
-  Error
-}
-pub fn Level::priority(Self) -> Int32
-
-pub struct Logger {
+pub struct AndroidSink {
   println : @runtime.JavaMethod
   tag : @runtime.JavaObject
 }
-pub fn Logger::log(Self, Level, String) -> Unit raise @runtime.RuntimeError
-pub fn Logger::new(String) -> Self raise @runtime.RuntimeError
+pub fn AndroidSink::new() -> Self raise AndroidLogError
+pub fn AndroidSink::write(Self, @core.Record) -> Result[Unit, AndroidLogError]
 
 // Type aliases
 

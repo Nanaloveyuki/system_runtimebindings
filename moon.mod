@@ -17,5 +17,6 @@ preferred_target = "native"
 source = "src"
 
 import {
-  "Nanaloveyuki/ajni@0.3.5",
+  "Nanaloveyuki/BitLogger@0.9.2",
+  "Nanaloveyuki/ajni@0.3.6",
 }

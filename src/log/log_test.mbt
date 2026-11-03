@@ -1,11 +1,15 @@
 ///|
 #cfg(not(target="native"))
-test "logging cannot simulate success without native JNI" {
+test "Android sink construction reports unsupported target" {
   try {
-    ignore(@log.Logger::new("unsupported"))
+    ignore(@log.AndroidSink::new())
     fail("Expected UnsupportedTarget")
   } catch {
-    @runtime.UnsupportedTarget => ()
-    _ => fail("Expected UnsupportedTarget")
+    @log.Runtime(error) =>
+      match error {
+        @runtime.UnsupportedTarget => ()
+        _ => fail("Expected UnsupportedTarget")
+      }
+    _ => fail("Expected AndroidLogError")
   }
 }

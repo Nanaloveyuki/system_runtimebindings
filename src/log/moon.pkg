@@ -1,4 +1,5 @@
 import {
+  "Nanaloveyuki/BitLogger/src" @logger,
   "Nanaloveyuki/ajni",
   "Nanaloveyuki/ajni/runtime",
 }
