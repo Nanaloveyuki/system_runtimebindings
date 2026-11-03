@@ -1,6 +1,6 @@
 # Android Runtime Binding
 
-MoonBit bindings for selected Android runtime capabilities, built on [AJNI](https://github.com/Nanaloveyuki/ajni). Version 0.1.1 provides Android system logging through `android.util.Log` with MoonBit 0.10.19.
+MoonBit bindings for selected Android runtime capabilities, built on [AJNI](https://github.com/Nanaloveyuki/ajni). The current checkout provides structured Android system logging using [BitLogger](https://github.com/Nanaloveyuki/BitLogger).
 
 ## Requirements
 
@@ -10,7 +10,7 @@ MoonBit bindings for selected Android runtime capabilities, built on [AJNI](http
 
 ## Use from this checkout
 
-Resolve the published AJNI dependency from the repository root:
+The current integration requires the matching BitLogger checkout at `../BitLogger`, including `Logger::log_with`. This API is not available in the published BitLogger 0.9.2 package. The workspace uses the local module while AJNI resolves to published version 0.3.6:
 
 ```bash
 moon update
@@ -21,18 +21,29 @@ Add the package import in the consuming `moon.pkg`:
 
 ```moonbit
 import {
+  "Nanaloveyuki/BitLogger/src" @logger,
   "Nanaloveyuki/android_runtimebinding/log",
 }
 ```
 
-Call it after the AJNI host initializes, on its owner thread, from an error-raising function:
+Create the sink after AJNI initializes, on its owner thread, from an error-raising function:
 
 ```moonbit
-let logger = @log.Logger::new("Index")
-logger.log(@log.Level::Info, "Index built")
+let logger = @logger.Logger::new(@log.AndroidSink::new(), target="Index")
+match logger.log_with(
+  @logger.Level::Info,
+  "Index built",
+  @log.AndroidSink::write,
+  fields=[@logger.field("resource_count", "12")],
+) {
+  Ok(_) => ()
+  Err(@log.Runtime(error)) => raise error
+}
 ```
 
-`Logger::new` binds a tag and the current AJNI session; reuse the logger for subsequent writes. `Logger::log` raises AJNI's `RuntimeError` if the JNI session is unavailable, belongs to another thread, or the Java call fails. Use Android logcat to view the message. Supported priorities are `Verbose`, `Debug`, `Info`, `Warn`, and `Error`.
+`AndroidSink::new` raises `AndroidLogError` if initialization fails. Writes return `Result[Unit, AndroidLogError]`; applications choose how to handle the retained AJNI `RuntimeError`. Reuse the sink only while its AJNI session remains open and on that session's owner thread. BitLogger owns levels, filtering, targets, and fields. Its `Trace` level maps to Android `Verbose`; the other levels map directly.
+
+View the structured records with `adb logcat -s RuntimeBinding:V`. Each message is a BitLogger JSON record, including its target and fields.
 
 ## Run the Android example
 
@@ -47,11 +58,11 @@ python3 scripts/run-android-smoke.py --serial emulator-5554
 
 The example defaults to x86_64. For an ARM64 device, build with `-PandroidAbi=arm64-v8a` and pass its ADB serial to the smoke command. Use `--adb /path/to/adb` if ADB is not on PATH; WSL can use Windows `adb.exe` with the same option.
 
-The smoke command installs the APK and launches it twice, checking five priorities, a Unicode message, and rejection before host initialization in logcat. The example requires no runtime permissions.
+The smoke command installs the APK and launches it twice, checking application Context acquisition through `getPackageName()`, five logging priorities, Unicode, fields, target overrides, filtering, and rejection before host initialization. The example requires no runtime permissions. Use `--adb-port 5038` if your ADB server uses that port.
 
 ## Implementation
 
-The Android adapter calls the public `android.util.Log.println` API through AJNI's checked JNI runtime. It requires a live AJNI session on its owner thread. This package does not initialize the Android host or manage UI, permissions, or application resources.
+The Android adapter sends BitLogger records to the public `android.util.Log.println` API through AJNI's checked JNI runtime. It requires a live AJNI session on its owner thread. AJNI owns host initialization and JNI primitives; runtimebinding owns Android capability adaptation. HarmonyOS integration follows Android MVP validation and will use MoonOHOS's published platform APIs.
 
 ## Suitability
 

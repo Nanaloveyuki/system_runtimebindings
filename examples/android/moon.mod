@@ -12,5 +12,6 @@ source = "moon"
 
 import {
   "Nanaloveyuki/android_runtimebinding@0.1.1",
-  "Nanaloveyuki/ajni@0.3.5",
+  "Nanaloveyuki/BitLogger@0.9.2",
+  "Nanaloveyuki/ajni@0.3.6",
 }

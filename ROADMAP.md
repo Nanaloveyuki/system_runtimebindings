@@ -4,33 +4,50 @@ Internal delivery plan for `system_runtimebindings`. The README remains user-fac
 
 ## Current Snapshot
 
-- Android logcat path: exercised on an API 37 x86_64 emulator. The smoke run verified all five Android log priorities, Unicode output, and rejection before AJNI host initialization.
-- Existing Android logging package: currently exposes a direct `Logger` API. Treat it as the first platform proof, not the desired long-term logging facade; BitLogger already owns structured logging and the generic `Sink` contract.
-- BitLogger Android adapter: not yet implemented. The intended Android integration is a BitLogger `Sink` that sends records to Android logcat while preserving levels, target, message, and fields, subject to an explicit write-failure contract.
-- HarmonyOS adapter: not started. Do not begin API mapping or implementation until the Android MVP gate below is met.
-- AJNI host helper refactor: the demo now consumes AJNI `0.3.5` and imports reusable callbacks from `Nanaloveyuki/ajni/android`, without an executable-package dependency. MoonBit `0.10.19+97801ee1b` native checks and the Android APK build pass. The API 37 x86_64 emulator passed two launches covering all five log priorities, Unicode, and rejection before AJNI initialization. Runtime binding `0.1.1` retains the direct Logger API; the BitLogger adapter remains a separate planned change.
+- The earlier direct Android logger proved JNI/logcat output on API 37 x86_64; that result predates the BitLogger migration.
+- The current package exposes `AndroidSink` and `AndroidLogError`. BitLogger owns the logger, levels, filtering, and records; the standalone runtimebinding `Logger` and `Level` APIs have been removed.
+- Writes use BitLogger's new `Logger::log_with` callback and return `Result[Unit, AndroidLogError]`. Construction raises the same adapter error; both paths retain the original AJNI failure. Records are serialized using BitLogger JSON formatting.
+- AJNI resolves to published 0.3.6. The Android example now exercises `android.application_context()` against the real host and calls `Context.getPackageName()` before closing the independently owned handle. The new BitLogger method is still supplied by the local `../BitLogger` workspace member and absent from published 0.9.2; release remains blocked on the BitLogger publication and migration off the local member.
+- Native checking and Android install/launch/logcat smoke remain the verification gates. HarmonyOS adapter: not started; begin evaluation only after the Android MVP exit gate below is met.
 
 ## Stage 1: Android MVP
 
 Goal: deliver a usable Android logging backend for the existing BitLogger library with a reproducible real-platform path.
 
 1. Complete AJNI host-helper packaging upstream; update this repository to the compatible AJNI release and remove the executable-package dependency from the demo.
-2. Before choosing the adapter interface, resolve the error-contract mismatch: BitLogger's synchronous `Sink::write` is non-raising, while AJNI calls may raise `RuntimeError`. Verify supported BitLogger extension patterns and decide how Android write failures remain observable; do not silently swallow failures or abort as an undocumented fallback.
-3. If the error contract supports a reliable adapter, add an Android sink implementing BitLogger's public `Sink`. Preserve structured record semantics: map levels to Android priorities and retain target, message, and fields. Keep AJNI session and owner-thread constraints explicit.
-4. Migrate the Android example and user documentation to the selected BitLogger integration. Remove the standalone runtimebinding `Logger` API after all consumers move; do not retain a parallel logging facade.
-5. Re-run workspace checks and the Android install/launch/logcat smoke path against updated dependencies. Host tests must exercise record-to-log mapping and the chosen failure behavior; emulator smoke must verify actual priority, tag/target, message, and structured fields.
+2. Keep Android write failures observable through `Logger::log_with` and `Result[Unit, AndroidLogError]`. The non-raising BitLogger `Sink` trait remains unchanged; Android output uses the fallible writer contract.
+3. Preserve structured record semantics: map BitLogger Trace to Android Verbose and retain target, message, fields, and optional timestamp in the JSON record. Keep AJNI session and owner-thread constraints explicit.
+4. Keep the example and README aligned with the selected BitLogger integration. The standalone runtimebinding logger has been removed.
+5. Run workspace checks and the Android install/launch/logcat smoke against updated dependencies. The smoke checks priorities, Unicode, targets, fields, filtering, and pre-initialization rejection across two launches.
 6. Review public module/package layout and generated interfaces. Publish only independently useful, stable modules; do not create or publish a shared facade solely to satisfy a planned module count.
 
 Exit gate: the logging integration has an explicit, observable write-failure contract; it builds against published AJNI and BitLogger releases without depending on an AJNI executable package; host contract checks and real Android smoke pass; a consumer can configure BitLogger to emit to Android logcat; license and release metadata are ready.
 
 ## Stage 2: Android capability selection
 
-After Stage 1, choose each next capability from a concrete consumer need. For each candidate:
+The validated logging path is sufficient to begin binding preparation. Its BitLogger publication dependency remains a release gate, not a prerequisite for documenting the next capability. Keep platform work Android-first and select one capability at a time.
 
-- Specify Android behavior, threading/lifecycle constraints, errors, and observable acceptance before defining a cross-platform contract.
-- Check the currently published AJNI API. Reuse it where sufficient; otherwise propose the smallest concrete upstream primitive with a use case and tests. Do not duplicate JNI or host integration in this repository.
-- Implement and verify one capability at a time. Permissions, network state, device information, vibration, resource access, cancellation, and lifecycle composition are candidates, not promised scope.
-- Add shared abstractions only when multiple platform implementations establish the same semantics. A single Android adapter does not justify a cross-platform facade or generalized cancellation/resource model.
+### Reference and compatibility preparation
+
+For Android version changes, consult [platform versions](docs/agents/android-platform-versions.md). For API signatures, permissions, and capability-specific constraints, consult [capability references](docs/agents/android-capability-reference.md). These notes index official sources and record review dates; refresh the affected section when selecting or changing an API rather than mirroring the full Android documentation tree.
+
+Keep the demo's current `minSdk=28`, `compileSdk=36`, and `targetSdk=36` during preparation. These are engineering inputs, not proof of API 28–36 compatibility. For every bound symbol, record its Java/JNI signature, introduction/deprecation version, permission requirements, device-API guard, target-dependent behavior, thread/session requirements, ownership/close behavior, and observable error. Consult reference documentation and behavior-change pages together; SDK `api-versions.xml` verifies symbol availability only.
+
+For each selected binding, keep a small source record in its capability note: canonical Android URL, review date, SDK platform/revision used for signature checks, and any AOSP release tag used to resolve ambiguity. Prefer public SDK references; use tagged AOSP source only where a documented contract is insufficient. Refresh only the affected entries after an SDK/target upgrade. Keep copied platform documentation and generated SDK metadata in the local SDK/cache rather than committing them here.
+
+Validate on the baseline API, the target API, and any capability-specific behavior thresholds before advertising that range. Keep the existing API 37 smoke as forward-runtime evidence for logging only. Record the device's build/preview identity when testing newer systems; installed SDK/emulator metadata alone does not establish release status.
+
+### Next implementation slices
+
+| Order | Slice | Prerequisite and acceptance |
+|---|---|---|
+| 1 | Runtime version and small non-sensitive device metadata | Use published AJNI field access for `Build.VERSION.SDK_INT` and selected `Build` fields. Verify returned values against the device; keep device runtime version distinct from host app target SDK. Add only fields actually needed by the binding or example. |
+| 2 | Packaged asset binary reads | AJNI 0.3.6 provides the public application-Context contract. Next prove binary reads and stream cleanup; establish off-main host execution and owner-thread completion before exposing general blocking reads. Verify exact bytes, empty files, Unicode names, missing assets and repeated reads. Keep text decoding a caller choice. |
+| Later | Vibration, network state, permission requests | Select from a concrete consumer need; use the cited API thresholds and capability-specific permission/callback/lifecycle contracts before committing an interface. |
+
+AJNI 0.3.6 exposes `android.application_context()` for the initialized host's normalized application Context; see the [AJNI Context contract](docs/agents/ajni-application-context-requirement.md). Context ownership and JNI host mechanics remain in AJNI; asset operations remain in runtimebinding. The current native worker posts back to main and does not support worker-thread MoonBit, so off-main I/O still needs a separate execution/completion contract.
+
+For each slice, implement the Android-specific package, migrate real consumers, and exercise the actual device path before publishing its contract. Add shared abstractions only when multiple platform implementations demonstrate the same semantics. Capability-specific handles and errors should follow the selected API rather than introducing a generic resource/cancellation framework ahead of use.
 
 ## Stage 3: HarmonyOS evaluation and adapter
 
@@ -45,7 +62,7 @@ Stage acceptance must cover the selected capability on HarmonyOS, a runnable dem
 | Category | Ownership | Evidence to accept work |
 |---|---|---|
 | Capability contract | runtimebinding, aligned with an existing consumer library where applicable | Consumer need, stable semantics, host contract test |
-| Android logging adapter | runtimebinding implements BitLogger `Sink` | Published AJNI/BitLogger APIs, record mapping test, Android device/emulator behavior |
+| Android logging adapter | runtimebinding provides a fallible BitLogger record writer | Published AJNI/BitLogger APIs, error and record contract checks, Android device/emulator behavior |
 | JNI and Android host primitives | AJNI upstream | Specific missing primitive, thread/lifecycle contract, upstream tests and release |
 | HarmonyOS adapter | runtimebinding, conditional Stage 3 | Published MoonOHOS API and runnable target-device/demo path |
 | Node-API bridge and HarmonyOS packaging | MoonOHOS upstream | Contribute upstream only by agreement; do not recreate here |
