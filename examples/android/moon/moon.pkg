@@ -1,10 +1,11 @@
 import {
   "Nanaloveyuki/BitLogger/src" @logger,
-  "Nanaloveyuki/android_runtimebinding/log" @log,
+  "Nanaloveyuki/android_runtimebinding/log",
   "Nanaloveyuki/ajni",
   "Nanaloveyuki/ajni/runtime",
   "Nanaloveyuki/ajni/android",
 }
+
 pkgtype(kind: "executable")
 
 supported_targets = "native"

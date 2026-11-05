@@ -27,9 +27,6 @@ set(MOON_RUNTIME_SOURCES
 
 file(GLOB_RECURSE MOON_INPUTS CONFIGURE_DEPENDS
   "${REPOSITORY_ROOT}/src/*.mbt"
-  "${REPOSITORY_ROOT}/../BitLogger/src/*.mbt"
-  "${REPOSITORY_ROOT}/../BitLogger/src/moon.pkg"
-  "${REPOSITORY_ROOT}/../BitLogger/src/moon.pkg.json"
   "${REPOSITORY_ROOT}/src/moon.pkg"
   "${REPOSITORY_ROOT}/src/moon.pkg.json"
   "${REPOSITORY_ROOT}/examples/android/moon/*.mbt"
@@ -49,7 +46,6 @@ file(GLOB_RECURSE MOON_INPUTS CONFIGURE_DEPENDS
 list(APPEND MOON_INPUTS
   "${REPOSITORY_ROOT}/moon.work"
   "${REPOSITORY_ROOT}/moon.mod"
-  "${REPOSITORY_ROOT}/../BitLogger/moon.mod"
   "${REPOSITORY_ROOT}/examples/android/moon.mod"
 )
 set(MOON_INPUT_MANIFEST "${CMAKE_CURRENT_BINARY_DIR}/moonbit-inputs.txt")

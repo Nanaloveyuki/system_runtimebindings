@@ -46,7 +46,9 @@ fn verify_application_context() -> Unit raise @runtime.RuntimeError {
   errdefer package_name_object.close()
   let package_name = package_name_object.to_string_value()
   if package_name != "dev.nanaloveyuki.runtimebinding.demo" {
-    raise @runtime.NativeFailure("Application Context has the wrong package name")
+    raise @runtime.NativeFailure(
+      "Application Context has the wrong package name",
+    )
   }
   package_name_object.close()
   context_class.object().close()
@@ -63,6 +65,14 @@ fn smoke() -> Unit raise @log.AndroidLogError {
     min_level=@logger.Level::Trace,
     target="RuntimeBindingSmoke",
   )
+  let write = (sink, record) => {
+    try {
+      @log.AndroidSink::write(sink, record)
+      Ok(())
+    } catch {
+      error => Err(error)
+    }
+  }
   for
     (level, message) in [
       (@logger.Level::Trace, "smoke trace"),
@@ -71,13 +81,13 @@ fn smoke() -> Unit raise @log.AndroidLogError {
       (@logger.Level::Warn, "smoke warn"),
       (@logger.Level::Error, "smoke error"),
     ] {
-    check_write(logger.log_with(level, message, @log.AndroidSink::write))
+    check_write(logger.log_with(level, message, write))
   }
   check_write(
     logger.log_with(
       @logger.Level::Info,
       "资源索引 ready: 月亮 🌙",
-      @log.AndroidSink::write,
+      write,
       fields=[@logger.field("resource_count", "1")],
     ),
   )
@@ -85,42 +95,23 @@ fn smoke() -> Unit raise @log.AndroidLogError {
     logger.log_with(
       @logger.Level::Info,
       "target override",
-      @log.AndroidSink::write,
+      write,
       target="ResourceIndex",
     ),
   )
   let filtered = logger.with_min_level(@logger.Level::Error)
   check_write(
-    filtered.log_with(
-      @logger.Level::Debug,
-      "must be filtered",
-      @log.AndroidSink::write,
-    ),
+    filtered.log_with(@logger.Level::Debug, "must be filtered", write),
   )
   if !pre_init_rejected.val {
     abort("FAIL android-log: pre-init rejection was not observed")
   }
-  check_write(
-    logger.log_with(
-      @logger.Level::Info,
-      "pre-init rejected: NotInitialized",
-      @log.AndroidSink::write,
-    ),
-  )
-  check_write(
-    logger.log_with(
-      @logger.Level::Info,
-      "PASS android-context",
-      @log.AndroidSink::write,
-    ),
-  )
-  check_write(
-    logger.log_with(
-      @logger.Level::Info,
-      "PASS android-log",
-      @log.AndroidSink::write,
-    ),
-  )
+  for
+    message in [
+      "pre-init rejected: NotInitialized", "PASS android-context", "PASS android-log",
+    ] {
+    check_write(logger.log_with(@logger.Level::Info, message, write))
+  }
 }
 
 ///|
