@@ -1,0 +1,25 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Nanaloveyuki/ohos_runtimebinding/log"
+
+import {
+  "Nanaloveyuki/BitLogger/src/core",
+  "Nanaloveyuki/BitLogger/src/sink_graph",
+  "shop1111/moonohos_ohos/hilog",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct HilogSink {
+  logger : @hilog.Logger
+}
+pub fn HilogSink::new(Int32, String) -> Self raise @hilog.HilogError
+pub fn HilogSink::write(Self, @core.Record) -> Unit
+pub async fn HilogSink::write_async(Self, @core.Record) -> Unit
+pub impl @sink_graph.Sink for HilogSink
+
+// Type aliases
+
+// Traits

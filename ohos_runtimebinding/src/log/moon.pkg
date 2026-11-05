@@ -1,0 +1,6 @@
+import {
+  "Nanaloveyuki/BitLogger/src" @logger,
+  "Nanaloveyuki/BitLogger/src/formatting",
+  "Nanaloveyuki/BitLogger/src/sink_graph",
+  "shop1111/moonohos_ohos/hilog",
+}
