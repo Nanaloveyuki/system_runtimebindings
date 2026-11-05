@@ -70,3 +70,13 @@ The Android adapter sends BitLogger records to `android.util.Log.println` throug
 
 Use this package from MoonBit native code embedded in an Android application that integrates AJNI. The included application demonstrates host setup and logging; application UI, permissions, and other system capabilities remain the application's responsibility.
 
+## Publish the HarmonyOS module
+
+`ohos_runtimebinding` sits inside this module's directory and is excluded from the Android package. Publish it through the staging helper, which copies it outside the parent `.moonignore` scope:
+
+```bash
+python3 scripts/publish-ohos-module.py --dry-run
+python3 scripts/publish-ohos-module.py
+```
+
+Both packages are on Mooncakes: `Nanaloveyuki/android_runtimebinding` (0.2.0) and `Nanaloveyuki/ohos_runtimebinding` (0.1.0).
