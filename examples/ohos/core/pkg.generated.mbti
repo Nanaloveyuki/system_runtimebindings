@@ -1,0 +1,17 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Nanaloveyuki/runtimebinding_hos_demo"
+
+import {
+  "shop1111/moonohos_ohos/hilog",
+}
+
+// Values
+pub fn run_logging() -> String raise @hilog.HilogError
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

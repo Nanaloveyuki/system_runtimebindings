@@ -1,0 +1,11 @@
+_build/
+.mooncakes/
+**/build/
+**/oh_modules/
+**/.hvigor/
+**/oh-package-lock.json5
+**/BuildProfile.ets
+harmony/*/libs/
+harmony/*/src/main/cpp/types/
+harmony/*/src/main/ets/generated/
+*.har

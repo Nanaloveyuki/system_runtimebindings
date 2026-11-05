@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "module": "core",
+  "package": "Nanaloveyuki/runtimebinding_hos_demo",
+  "nativeModule": "runtimebinding",
+  "workspace": "moon.work",
+  "functions": [
+    {"name": "run_logging", "params": [], "return": "String", "raises": true}
+  ]
+}

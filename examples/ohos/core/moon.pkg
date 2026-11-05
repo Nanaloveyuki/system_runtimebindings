@@ -1,0 +1,5 @@
+import {
+  "Nanaloveyuki/BitLogger/src" @logger,
+  "Nanaloveyuki/ohos_runtimebinding/log",
+  "shop1111/moonohos_ohos/hilog",
+}

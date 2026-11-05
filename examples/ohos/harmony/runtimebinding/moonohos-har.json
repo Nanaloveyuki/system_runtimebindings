@@ -1,0 +1,26 @@
+{
+  "moonohosVersion": "0.6.0",
+  "module": "runtimebinding",
+  "packageVersion": "0.6.0",
+  "manifestSha256": "8cc7951c2eb726c518c9090f1cff9e0f297e79a8d4273fdec97cc28cd99bf5ff",
+  "abis": [
+    "x86_64"
+  ],
+  "files": [
+    {
+      "path": "libs/x86_64/libruntimebinding.so",
+      "size": 2372000,
+      "sha256": "f39552c50b001ac1e0cf8fb26bdab95e6787e855c14895ae764698b98b4ccae1"
+    },
+    {
+      "path": "types/libruntimebinding/index.d.ts",
+      "size": 534,
+      "sha256": "19e6f3075cef632dfcca14a7088ea290b18ab2902852486c176c010b72ffa651"
+    },
+    {
+      "path": "types/libruntimebinding/oh-package.json5",
+      "size": 85,
+      "sha256": "a9d4b8cc8e280f21336b9593940ce043e77a06e53be3461f879de2e72cc4729c"
+    }
+  ]
+}

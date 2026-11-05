@@ -1,0 +1,10 @@
+{
+  "name": "@nanaloveyuki/runtimebinding",
+  "version": "0.1.0",
+  "description": "MoonBit native module runtimebinding",
+  "main": "Index.ets",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "libruntimebinding.so": "file:./src/main/cpp/types/libruntimebinding"
+  }
+}
