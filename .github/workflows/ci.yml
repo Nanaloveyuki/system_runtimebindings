@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  check:
+    name: Check and test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MoonBit (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s -- "$(cat .moonbit-toolchain)"
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Setup MoonBit (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+          $env:MOONBIT_INSTALL_VERSION = (Get-Content .moonbit-toolchain -Raw).Trim()
+          irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
+          "$HOME/.moon/bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - name: Show tool versions
+        shell: bash
+        run: |
+          moon version --all
+          moonc -v
+
+      - name: Update Moon registry
+        shell: bash
+        run: moon update
+
+      - name: Check formatting
+        shell: bash
+        run: moon fmt --check
+
+      - name: Check exported interfaces
+        shell: bash
+        run: |
+          moon info
+          git diff --exit-code
+
+      - name: Check all targets
+        shell: bash
+        run: |
+          moon check --target native --deny-warn
+          moon check --target wasm --deny-warn
+          moon check --target wasm-gc --deny-warn
+          moon check --target js --deny-warn
+
+      - name: Test all targets
+        shell: bash
+        run: |
+          moon test --target native --deny-warn
+          moon test --target wasm --deny-warn
+          moon test --target wasm-gc --deny-warn
+          moon test --target js --deny-warn
+
+  ohos-module:
+    name: Check HarmonyOS module (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MoonBit
+        shell: bash
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s -- "$(cat .moonbit-toolchain)"
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Update Moon registry
+        shell: bash
+        run: moon update
+
+      - name: Check HarmonyOS module
+        shell: bash
+        working-directory: ohos_runtimebinding
+        run: |
+          moon fmt --check
+          moon info
+          git diff --exit-code
+          moon check --target native --deny-warn
+          moon test --target native --deny-warn
