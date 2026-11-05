@@ -1,16 +1,16 @@
-# Android Runtime Binding
+# System Runtime Bindings
 
-MoonBit bindings for selected Android runtime capabilities, built on [AJNI](https://github.com/Nanaloveyuki/ajni). The current checkout provides structured Android system logging using [BitLogger](https://github.com/Nanaloveyuki/BitLogger).
+MoonBit bindings for selected mobile runtime capabilities. Android provides structured system logging and the device API level through [AJNI](https://github.com/Nanaloveyuki/ajni). The [HarmonyOS module](ohos_runtimebinding/README.md) provides structured HiLog output through [MoonOHOS](https://github.com/shop1111/MoonOHOS). Both use [BitLogger](https://github.com/Nanaloveyuki/BitLogger) records.
 
-## Requirements
+## Android requirements
 
 - Android host initialized with AJNI before calling this package.
 - MoonBit native target and Android NDK configured by the host application.
 - MoonBit `0.10.19+97801ee1b` (`moon` CLI `0.1.20261029`).
 
-## Use from this checkout
+## Use Android from this checkout
 
-The current integration requires the matching BitLogger checkout at `../BitLogger`, including `Logger::log_with`. This API is not available in the published BitLogger 0.9.2 package. The workspace uses the local module while AJNI resolves to published version 0.3.6:
+The workspace resolves BitLogger 0.11.1 (including `Logger::log_with`) and AJNI 0.3.6 from Mooncakes. No adjacent dependency checkouts are required:
 
 ```bash
 moon update
@@ -26,24 +26,26 @@ import {
 }
 ```
 
-Create the sink after AJNI initializes, on its owner thread, from an error-raising function:
+Create the sink after AJNI initializes, on its owner thread. `AndroidSink::new` raises `AndroidLogError` if initialization fails. `AndroidSink::write` also raises `AndroidLogError`, retaining the original AJNI failure for callers. BitLogger owns levels, filtering, targets, and fields. Its `Trace` level maps to Android `Verbose`; the other levels map directly.
 
 ```moonbit
 let logger = @logger.Logger::new(@log.AndroidSink::new(), target="Index")
-match logger.log_with(
-  @logger.Level::Info,
-  "Index built",
-  @log.AndroidSink::write,
-  fields=[@logger.field("resource_count", "12")],
-) {
-  Ok(_) => ()
-  Err(@log.Runtime(error)) => raise error
-}
+let result = logger.log_with(@logger.Level::Info, "Index built", (sink, record) => {
+  try {
+    @log.AndroidSink::write(sink, record)
+    Ok(())
+  } catch {
+    error => Err(error)
+  }
+})
 ```
 
-`AndroidSink::new` raises `AndroidLogError` if initialization fails. Writes return `Result[Unit, AndroidLogError]`; applications choose how to handle the retained AJNI `RuntimeError`. Reuse the sink only while its AJNI session remains open and on that session's owner thread. BitLogger owns levels, filtering, targets, and fields. Its `Trace` level maps to Android `Verbose`; the other levels map directly.
+Handle `result` at the application boundary. Reuse the sink only while its AJNI session remains open and on that session's owner thread.
+
+Import `Nanaloveyuki/android_runtimebinding/device_info` and call `@device_info.sdk_level()` from a function that raises AJNI `RuntimeError` to read the running device's major API level. This is independent of the application's target SDK, requires an initialized AJNI session on its owner thread, and requests no permissions. Unsupported platforms raise `UnsupportedTarget`; uninitialized Android hosts raise `NotInitialized`.
 
 View the structured records with `adb logcat -s RuntimeBinding:V`. Each message is a BitLogger JSON record, including its target and fields.
+
 
 ## Run the Android example
 
@@ -58,12 +60,13 @@ python3 scripts/run-android-smoke.py --serial emulator-5554
 
 The example defaults to x86_64. For an ARM64 device, build with `-PandroidAbi=arm64-v8a` and pass its ADB serial to the smoke command. Use `--adb /path/to/adb` if ADB is not on PATH; WSL can use Windows `adb.exe` with the same option.
 
-The smoke command installs the APK and launches it twice, checking application Context acquisition through `getPackageName()`, five logging priorities, Unicode, fields, target overrides, filtering, and rejection before host initialization. The example requires no runtime permissions. Use `--adb-port 5038` if your ADB server uses that port.
+The smoke command installs the APK and launches it twice, checking application Context acquisition, logging priorities, Unicode, fields, target overrides, filtering, and rejection before host initialization. The example requires no runtime permissions. Use `--adb-port 5038` if your ADB server uses that port.
 
 ## Implementation
 
-The Android adapter sends BitLogger records to the public `android.util.Log.println` API through AJNI's checked JNI runtime. It requires a live AJNI session on its owner thread. AJNI owns host initialization and JNI primitives; runtimebinding owns Android capability adaptation. HarmonyOS integration follows Android MVP validation and will use MoonOHOS's published platform APIs.
+The Android adapter sends BitLogger records to `android.util.Log.println` through AJNI's checked JNI runtime and requires a live session on its owner thread. The HarmonyOS adapter sends records through MoonOHOS's public HiLog interface; MoonOHOS supplies Node-API bridging and HAR packaging. See the [HarmonyOS example](examples/ohos/README.md) for building and running it.
 
 ## Suitability
 
 Use this package from MoonBit native code embedded in an Android application that integrates AJNI. The included application demonstrates host setup and logging; application UI, permissions, and other system capabilities remain the application's responsibility.
+
