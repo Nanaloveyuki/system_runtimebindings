@@ -1,0 +1,4 @@
+import {
+  "Nanaloveyuki/ajni",
+  "Nanaloveyuki/ajni/runtime",
+}
