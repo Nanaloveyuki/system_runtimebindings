@@ -44,11 +44,11 @@ pub fn AndroidSink::new() -> AndroidSink raise AndroidLogError {
 }
 
 ///|
-/// Writes one BitLogger record. Callers receive AJNI failures as `Err`.
+/// Writes one BitLogger record and propagates AJNI failures to its caller.
 pub fn AndroidSink::write(
   self : AndroidSink,
   record : @logger.Record,
-) -> Result[Unit, AndroidLogError] {
+) -> Unit raise AndroidLogError {
   try {
     let session = @runtime.Session::current()
     let message_object = session.new_string(@logger.format_json(record))
@@ -61,9 +61,9 @@ pub fn AndroidSink::write(
       ]),
     )
     message_object.close()
-    Ok(())
+    ()
   } catch {
-    error => Err(Runtime(error))
+    error => raise Runtime(error)
   }
 }
 

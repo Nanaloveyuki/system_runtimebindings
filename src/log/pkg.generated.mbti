@@ -19,7 +19,7 @@ pub struct AndroidSink {
   tag : @runtime.JavaObject
 }
 pub fn AndroidSink::new() -> Self raise AndroidLogError
-pub fn AndroidSink::write(Self, @core.Record) -> Result[Unit, AndroidLogError]
+pub fn AndroidSink::write(Self, @core.Record) -> Unit raise AndroidLogError
 
 // Type aliases
 
