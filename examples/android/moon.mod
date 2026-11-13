@@ -1,6 +1,6 @@
 name = "Nanaloveyuki/runtimebinding_android_demo"
 
-version = "0.1.1"
+version = "0.1.2"
 
 description = "Android emulator example for MoonBit runtime capability bindings."
 
@@ -11,7 +11,7 @@ preferred_target = "native"
 source = "moon"
 
 import {
-  "Nanaloveyuki/android_runtimebinding@0.1.1",
-  "Nanaloveyuki/BitLogger@0.11.1",
-  "Nanaloveyuki/ajni@0.3.6",
+  "Nanaloveyuki/android_runtimebinding@0.2.1",
+  "Nanaloveyuki/BitLogger@0.11.2",
+  "Nanaloveyuki/ajni@0.3.8",
 }

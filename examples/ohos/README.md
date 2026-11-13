@@ -4,7 +4,7 @@ A MoonOHOS-generated ArkTS host calling the runtimebinding HiLog adapter. The pa
 
 ## Build from WSL
 
-Requirements: MoonBit `0.10.19+97801ee1b`, Python 3, Linux CMake/Ninja on PATH, PowerShell 7, and Windows DevEco Studio with API 26 native SDK, Node, OHPM and Hvigor installed. Install the published CLI:
+Requirements: MoonBit `0.10.20+65efd5b93`, Python 3, Linux CMake/Ninja on PATH, PowerShell 7, and Windows DevEco Studio with API 26 native SDK, Node, OHPM and Hvigor installed. Install the published CLI:
 
 ```bash
 moon install shop1111/moonohos/cmd/moonohos

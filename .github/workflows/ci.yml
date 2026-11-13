@@ -64,12 +64,9 @@ jobs:
           moon check --target js --deny-warn
 
       - name: Test native
-        if: runner.os != 'Windows'
         shell: bash
         run: moon test --target native --deny-warn
 
-      # AJNI's C stub needs a GCC-compatible toolchain; MSVC rejects its
-      # declarations, so native linking is verified on Linux and macOS only.
       - name: Test portable targets
         shell: bash
         run: |

@@ -1,10 +1,10 @@
 # HarmonyOS Runtime Binding
 
-Structured HiLog output for MoonBit native modules, using BitLogger 0.10.0 records and MoonOHOS 0.6.0. The module is available from this checkout and is not yet published.
+Structured HiLog output for MoonBit native modules, using BitLogger 0.11.2 records and MoonOHOS 0.9.0. The module is available on Mooncakes and from this checkout.
 
 ## Use
 
-Add `ohos_runtimebinding` to the consuming MoonBit workspace and depend on `Nanaloveyuki/ohos_runtimebinding@0.1.0`. Import these packages in `moon.pkg`:
+Add `ohos_runtimebinding` to the consuming MoonBit workspace and depend on `Nanaloveyuki/ohos_runtimebinding@0.1.1`. Import these packages in `moon.pkg`:
 
 ```moonbit
 import {
@@ -29,7 +29,7 @@ Each message is a complete BitLogger JSON record. `Trace` uses HiLog `Debug` whi
 
 ## Requirements and applicability
 
-Use MoonBit `0.10.19+97801ee1b` with a MoonOHOS native host. The [example](../examples/ohos/README.md) was verified on HOS 7.0 / API 26 x86_64. ARM64 and signed physical-device deployment have not been verified.
+Use MoonBit `0.10.20+65efd5b93` with a MoonOHOS native host. The [example](../examples/ohos/README.md) was verified on HOS 7.0 / API 26 x86_64. ARM64 and signed physical-device deployment have not been verified.
 
 Use BitLogger's pure `core`, `formatting`, and `sink_graph` packages. Its root `src` package currently includes host async native dependencies that cannot load through MoonOHOS. This adapter does not add another logger or filtering framework.
 

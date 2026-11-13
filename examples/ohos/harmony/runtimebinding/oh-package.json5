@@ -1,6 +1,6 @@
 {
   "name": "@nanaloveyuki/runtimebinding",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MoonBit native module runtimebinding",
   "main": "Index.ets",
   "license": "Apache-2.0",
