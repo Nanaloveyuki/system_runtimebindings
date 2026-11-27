@@ -63,9 +63,9 @@ fn hilog_level_name(level : @hilog.Level) -> String {
 /// BitLogger's five levels collapse onto HiLog's four levels. The mapping is
 /// what the HiLog output shows, so check it directly.
 test "hilog level mapping collapses trace into debug" {
-  inspect(hilog_level_name(hilog_level(@logger.Level::Trace)), content="Debug")
-  inspect(hilog_level_name(hilog_level(@logger.Level::Debug)), content="Debug")
-  inspect(hilog_level_name(hilog_level(@logger.Level::Info)), content="Info")
-  inspect(hilog_level_name(hilog_level(@logger.Level::Warn)), content="Warn")
-  inspect(hilog_level_name(hilog_level(@logger.Level::Error)), content="Error")
+  inspect(hilog_level_name(hilog_level(@core.Trace)), content="Debug")
+  inspect(hilog_level_name(hilog_level(@core.Debug)), content="Debug")
+  inspect(hilog_level_name(hilog_level(@core.Info)), content="Info")
+  inspect(hilog_level_name(hilog_level(@core.Warn)), content="Warn")
+  inspect(hilog_level_name(hilog_level(@core.Error)), content="Error")
 }

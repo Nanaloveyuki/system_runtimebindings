@@ -115,6 +115,7 @@ fn smoke() -> Unit raise @log.AndroidLogError {
 }
 
 ///|
+#export_name("ajni_dispatch_event")
 pub fn dispatch(kind : Int32, first : Int32, second : Int32) -> Unit {
   @android.dispatch_from_android(kind, first, second)
   if kind == 1 {
@@ -125,16 +126,13 @@ pub fn dispatch(kind : Int32, first : Int32, second : Int32) -> Unit {
 }
 
 ///|
+#export_name("ajni_create_int_callback")
 pub fn create_int_callback(env : UInt64) -> UInt64 {
   @android.create_int_callback(env)
 }
 
 ///|
+#export_name("ajni_handled_observer_error")
 pub fn handled_observer_error() -> Int32 {
   @android.handled_observer_error()
-}
-
-///|
-fn main {
-  ()
 }

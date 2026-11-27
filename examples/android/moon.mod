@@ -11,7 +11,7 @@ preferred_target = "native"
 source = "moon"
 
 import {
-  "Nanaloveyuki/android_runtimebinding@0.2.1",
-  "Nanaloveyuki/BitLogger@0.11.2",
-  "Nanaloveyuki/ajni@0.3.8",
+  "Nanaloveyuki/android_runtimebinding@0.3.0",
+  "Nanaloveyuki/BitLogger@0.12.0",
+  "Nanaloveyuki/ajni@0.4.0",
 }

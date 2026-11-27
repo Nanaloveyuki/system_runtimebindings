@@ -1,6 +1,6 @@
 name = "Nanaloveyuki/android_runtimebinding"
 
-version = "0.2.1"
+version = "0.3.0"
 
 description = "Android runtime capability bindings for MoonBit, built on AJNI."
 
@@ -17,6 +17,6 @@ preferred_target = "native"
 source = "src"
 
 import {
-  "Nanaloveyuki/BitLogger@0.11.2",
-  "Nanaloveyuki/ajni@0.3.8",
+  "Nanaloveyuki/BitLogger@0.12.0",
+  "Nanaloveyuki/ajni@0.4.0",
 }

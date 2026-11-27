@@ -1,27 +1,28 @@
 ///|
 pub fn run_logging() -> String raise @hilog.HilogError {
   let sink = @log.HilogSink::new(0x5254, "RuntimeBinding")
-  let logger = @logger.Logger::new(
-    sink,
-    min_level=@logger.Level::Trace,
-    target="RuntimeBindingSmoke",
-  )
+  let target = "RuntimeBindingSmoke"
   for
     (level, message) in [
-      (@logger.Level::Trace, "smoke trace"),
-      (@logger.Level::Debug, "smoke debug"),
-      (@logger.Level::Info, "smoke info"),
-      (@logger.Level::Warn, "smoke warn"),
-      (@logger.Level::Error, "smoke error"),
+      (@core.Trace, "smoke trace"),
+      (@core.Debug, "smoke debug"),
+      (@core.Info, "smoke info"),
+      (@core.Warn, "smoke warn"),
+      (@core.Error, "smoke error"),
     ] {
-    logger.log(level, message)
+    sink.write(@core.Record::new(level, message, target~))
   }
-  logger.info("资源索引 ready: 月亮 🌙", fields=[
-    @logger.field("resource_count", "1"),
-  ])
-  logger.log(@logger.Level::Info, "target override", target="ResourceIndex")
-  let filtered = @logger.Logger::new(sink, min_level=@logger.Level::Warn)
-  filtered.debug("must be filtered")
-  logger.info("PASS ohos-log")
+  sink.write(
+    @core.Record::new(@core.Info, "资源索引 ready: 月亮 🌙", target~, fields=[
+      @core.field("resource_count", "1"),
+    ]),
+  )
+  sink.write(
+    @core.Record::new(@core.Info, "target override", target="ResourceIndex"),
+  )
+  if @core.Level::enabled(@core.Debug, @core.Warn) {
+    sink.write(@core.Record::new(@core.Debug, "must be filtered", target~))
+  }
+  sink.write(@core.Record::new(@core.Info, "PASS ohos-log", target~))
   "Logging example completed"
 }

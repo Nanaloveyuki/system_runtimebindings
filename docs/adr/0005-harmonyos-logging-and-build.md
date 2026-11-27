@@ -2,6 +2,8 @@
 
 Status: accepted for the API 26 simulator slice. This decision records the adapter contract, upstream constraints and removal conditions for build compatibility code. Update it when those contracts or upstream versions change.
 
+The RC1 build uses MoonOHOS 0.9.0 with its CLI's async dependency updated to 0.22.10 in a temporary checkout. MoonOHOS 0.9.0 regenerates the `-all-pkgs` metadata, so the build script can invoke `moonc` directly. The HarmonyOS adapter and example use BitLogger's pure packages to avoid pulling file I/O stubs into the shared library. [Current WSL build commands](../../examples/ohos/README.md)
+
 `ohos_runtimebinding` is a separate MoonBit module inside this repository. It depends on published BitLogger 0.11.1 and `shop1111/moonohos_ohos` 0.6.0, without AJNI. The Android module and its published package path remain unchanged. The Android publication excludes the HarmonyOS module directory.
 
 For a HarmonyOS publication, copy the module's source, README, license and `.moonignore` to an isolated directory excluding `_build` and `.mooncakes`, then run `moon publish --dry-run` there. This was verified through server acceptance. Current packaging inherits the repository root's `.moonignore`; publishing the nested directory in place excludes its manifest. Root Android packaging was separately inspected and contains no HarmonyOS files. Neither new release was published in this slice.

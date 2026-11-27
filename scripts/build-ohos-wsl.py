@@ -2,25 +2,12 @@
 """Build the HiLog demo with published MoonOHOS and a Windows DevEco SDK from WSL."""
 
 import argparse
-import os
 from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
 
-
-COMPILER_BRIDGE = '''#!{python}
-import os, sys
-from pathlib import Path
-args = sys.argv[1:]
-metadata = Path('_build/native/debug/check/all_pkgs.json')
-# MoonOHOS 0.6.0 strips this metadata; current MoonBit needs it for implicit imports.
-if args and args[0] == 'build-package' and '-all-pkgs' not in args:
-    if metadata.is_file():
-        args += ['-all-pkgs', str(metadata.resolve())]
-os.execv({compiler!r}, [{compiler!r}, *args])
-'''
 
 WINDOWS_COMPILER = '''#!{python}
 import os, subprocess, sys
@@ -69,9 +56,8 @@ def main():
     example = repo / 'examples/ohos'
     deveco = args.deveco.resolve(strict=True)
     native = deveco / 'sdk/default/openharmony/native'
-    compiler = shutil.which('moonc')
-    if compiler is None:
-        parser.error('moonc must be on PATH')
+    if shutil.which('moonc') is None or shutil.which('moonohos') is None:
+        parser.error('moonc and MoonOHOS 0.9.0 must be on PATH')
     for relative in ['llvm/bin/clang.exe', 'llvm/bin/clang++.exe', 'build-tools/cmake/bin/cmake.exe', 'build-tools/cmake/bin/ninja.exe']:
         if not (native / relative).is_file():
             parser.error(f'Missing SDK tool: {native / relative}')
@@ -99,15 +85,12 @@ def main():
         executable(sdk / 'llvm/bin/llvm-readelf', WINDOWS_COMPILER.format(python=sys.executable, compiler=str(native / 'llvm/bin/llvm-readelf.exe')))
         for name in ['llvm-ar', 'llvm-ranlib']:
             executable(sdk / 'llvm/bin' / name, WINDOWS_COMPILER.format(python=sys.executable, compiler=str(native / 'llvm/bin' / (name + '.exe'))))
-        executable(scratch / 'bin/moonc', COMPILER_BRIDGE.format(python=sys.executable, compiler=compiler))
-        env = os.environ.copy()
-        env['PATH'] = str(scratch / 'bin') + os.pathsep + env['PATH']
         dist = scratch / 'dist'
         # Doctor otherwise inspects unrelated async metadata in the invocation directory.
-        run(['moonohos', 'build', '--config', example / 'moonohos.json', '--sdk', sdk, '--abi', 'x86_64', '--out', dist, '--json'], cwd=scratch, env=env)
-        run(['moonohos', 'har', '--dist', dist, '--module', example / 'harmony/runtimebinding', '--json'], cwd=scratch)
+        run(['moonohos', 'build', '--config', example / 'moonohos.json', '--sdk', sdk, '--abi', 'x86_64', '--out', dist, '--json'], cwd=scratch)
         harmony = Path(staging) / 'harmony'
         shutil.copytree(example / 'harmony', harmony, ignore=shutil.ignore_patterns('build', 'oh_modules', '.hvigor', 'oh-package-lock.json5'))
+        run(['moonohos', 'har', '--dist', dist, '--module', harmony / 'runtimebinding', '--json'], cwd=scratch)
         def quote(value):
             return "'" + str(value).replace("'", "''") + "'"
         studio = windows_path(deveco)

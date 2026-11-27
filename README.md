@@ -6,11 +6,11 @@ MoonBit bindings for selected mobile runtime capabilities. Android provides stru
 
 - Android host initialized with AJNI before calling this package.
 - MoonBit native target and Android NDK configured by the host application.
-- MoonBit `0.10.20+65efd5b93` (`moon` CLI `0.1.20261104`).
+- MoonBit `1.0.0-rc1+3c0520448` (`moon` CLI `0.1.20261126`).
 
 ## Use Android from this checkout
 
-The workspace resolves BitLogger 0.11.2 (including `Logger::log_with`) and AJNI 0.3.8 from Mooncakes. No adjacent dependency checkouts are required:
+The workspace resolves BitLogger 0.12.0 (including `Logger::log_with`) and AJNI 0.4.0 from Mooncakes. No adjacent dependency checkouts are required:
 
 ```bash
 moon update
@@ -79,4 +79,4 @@ python3 scripts/publish-ohos-module.py --dry-run
 python3 scripts/publish-ohos-module.py
 ```
 
-Both packages are on Mooncakes: `Nanaloveyuki/android_runtimebinding` (0.2.1) and `Nanaloveyuki/ohos_runtimebinding` (0.1.1).
+Both packages are on Mooncakes: `Nanaloveyuki/android_runtimebinding` (0.3.0) and `Nanaloveyuki/ohos_runtimebinding` (0.2.0).

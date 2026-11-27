@@ -14,7 +14,7 @@ pub fn HilogSink::new(
 
 ///|
 /// HiLog has one level less than BitLogger, so trace collapses into debug.
-fn hilog_level(level : @logger.Level) -> @hilog.Level {
+fn hilog_level(level : @core.Level) -> @hilog.Level {
   match level {
     Trace | Debug => @hilog.Level::Debug
     Info => @hilog.Level::Info

@@ -4,10 +4,19 @@ A MoonOHOS-generated ArkTS host calling the runtimebinding HiLog adapter. The pa
 
 ## Build from WSL
 
-Requirements: MoonBit `0.10.20+65efd5b93`, Python 3, Linux CMake/Ninja on PATH, PowerShell 7, and Windows DevEco Studio with API 26 native SDK, Node, OHPM and Hvigor installed. Install the published CLI:
+Use MoonBit `1.0.0-rc1+3c0520448`, Python 3, Linux CMake and Ninja, PowerShell 7, and Windows DevEco Studio with API 26 native SDK, Node, OHPM and Hvigor. The MoonOHOS 0.9.0 CLI declares `moonbitlang/async@0.21.0`, which fails to compile with RC1. Build the published source with `0.22.10` in a temporary directory. [MoonOHOS 0.9.0 on Mooncakes](https://mooncakes.io/docs/shop1111/moonohos@0.9.0)
 
 ```bash
-moon install shop1111/moonohos/cmd/moonohos
+moonohos_stage="$(mktemp -d)"
+(
+  set -e
+  cd "$moonohos_stage"
+  moon fetch shop1111/moonohos@0.9.0
+  cd .repos/shop1111/moonohos/0.9.0
+  moon add --upgrade moonbitlang/async@0.22.10
+  moon install ./cmd/moonohos --bin "$moonohos_stage/bin"
+)
+export PATH="$moonohos_stage/bin:$PATH"
 ```
 
 From the repository root, substitute your mounted Windows paths:
@@ -29,8 +38,8 @@ python3 scripts/run-ohos-smoke.py \
   --target 127.0.0.1:5555
 ```
 
-The smoke command installs the HAP and starts the application twice, validating real HiLog priorities, Unicode, structured fields and targets. Unsigned debug installation was accepted by the HOS 7.0 / API 26 x86_64 simulator; ordinary device distribution requires an appropriate signing configuration.
+The smoke command installs the HAP and starts the application twice, validating HiLog priorities, Unicode, structured fields, targets, and filtering. Both launches passed on the API 26 x86_64 simulator with the RC1 build. Device distribution requires an appropriate signing configuration.
 
 The page displays **Logging example completed**. Read output with `hdc -t TARGET shell hilog -x -t app -T RuntimeBinding`. A HAR consumer imports `native` from `@nanaloveyuki/runtimebinding` and calls `native.run_logging()`.
 
-The example submits records through BitLogger's pure packages. Full root-package `Logger` integration and its filtering are not claimed: that package currently introduces host async native dependencies rejected by MoonOHOS.
+The example constructs records with BitLogger's `core` package, which supplies the record types and severity threshold check. The root `src` package also brings in file I/O C stubs that require a MoonOHOS native dependency descriptor.
